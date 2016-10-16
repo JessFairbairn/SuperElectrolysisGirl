@@ -158,13 +158,16 @@ window.addEventListener( "keydown", doKeyDown, true);
 function doKeyDown(e){
 	switch(e.keyCode){
 		case 37: 
+		case 65:
 			movePlayerLeft();
 			break;
 		case 39: 
+		case 68:
 			movePlayerRight();
 			break;
 
 		case 32:
+		case 87:
 			//space
 			fireWeapon();
 			break;
