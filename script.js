@@ -6,8 +6,9 @@ document.getElementById("tetGrid").height = GRID_SIZE_Y;
 
 var currentBlocks ;
 var fallingBlocks ;
-var timeDelay = 100;//milliseconds
+var timeDelay = 50;//100;//milliseconds
 var pauseBool = false;
+var gameOver = false;
 
 var player = {};
 player.x = 0;
@@ -60,6 +61,9 @@ function drawProjectiles(){
 }
 
 function drawHairs(){
+	const colour = 'brown';
+	const TIP_LENGTH = 19;
+
 	for (var i = hairs.length - 1; i >= 0; i--) {
 		var hair = hairs[i];
 		if(!hair) continue;
@@ -68,12 +72,20 @@ function drawHairs(){
 		var ctx=c.getContext("2d");
 
 		ctx.beginPath();
-		ctx.rect((GRID_SIZE_X/10)*i, 0, 5, hair.length);
-		ctx.fillStyle = 'brown';
+		ctx.rect((GRID_SIZE_X/10) * i, 0, 5, hair.length - TIP_LENGTH);
+		ctx.fillStyle = colour;
+		ctx.strokeStyle = colour;
 		//ctx.lineWidth="2";
 		
 		ctx.fill();
-		ctx.stroke(); 
+		ctx.stroke();
+
+		ctx.beginPath();
+	    ctx.moveTo((GRID_SIZE_X/10) * i, hair.length- TIP_LENGTH);
+	    ctx.lineTo((GRID_SIZE_X/10) * i + 5, hair.length - TIP_LENGTH);
+	    ctx.lineTo( (GRID_SIZE_X/10) * i + 2.5, hair.length);
+	    ctx.fill();
+
 		ctx.save();
 
 	}
@@ -102,13 +114,18 @@ function growHair(){
 function redrawGrid(){
 	clearGrid();
 	drawPlayer(player.x, player.y);
-	growHair();
 	drawProjectiles();
 	drawHairs();
 }
 
 //falling function
 function timeStep(){
+	if(gameOver) {
+		clearTimeout(window.timeStepTimeout);
+		return;
+	}
+
+	growHair();
 	
 	//move projectiles
 	var projectilesToRemove = [];
@@ -304,7 +321,8 @@ function fireWeapon(){
 }
 
 function lose(){
-	clearTimeout(timeStepTimeout);
+	clearTimeout(window.timeStepTimeout);
+	gameOver = true;
 	window.removeEventListener("keydown", doKeyDown);	
 	alert("Oh no! You accidently grew a beard worthy of Gandalf, and now you aren't going out tonight. Better watch Netflix and eat instant noodles!\n\nGAME OVER");
 }
