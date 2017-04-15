@@ -24,20 +24,48 @@ const PLAYER_WIDTH = 20;
 function drawPlayer (x,y,colour){
 	var c=document.getElementById("tetGrid");
 	var ctx=c.getContext("2d");
+	const squareMode = true;
 
+	if(squareMode){
+		ctx.beginPath();
+
+		ctx.strokeStyle = 'red';
+		ctx.rect(x, (GRID_SIZE_Y-y - PLAYER_WIDTH), 20,20);
+
+		// console.log("y = " + ((22-y)*20) );
+		// console.log("x = " + ((x)*20) );		
+		
+		ctx.stroke();
+	}
+	
 	ctx.beginPath();
-	ctx.rect(x, (GRID_SIZE_Y-y - PLAYER_WIDTH), 20,20);
 
-	// console.log("y = " + ((22-y)*20) );
-	// console.log("x = " + ((x)*20) );
+	//head
 	if (null != colour){
 		ctx.fillStyle = colour;
+		ctx.strokeStyle = colour;
 	}
 	else {
-		ctx.fillStyle = 'red';
+		ctx.fillStyle = '#ffd9b3';
+		ctx.strokeStyle = '#ffd9b3';
 	}
+	ctx.arc(
+		x + PLAYER_WIDTH/2,
+		GRID_SIZE_Y-y - 4*(PLAYER_WIDTH/5),
+		PLAYER_WIDTH/5,
+		0,
+		Math.PI * 2,
+		true
+	);
+	ctx.stroke();	
 	ctx.fill();
-	ctx.stroke(); 
+
+	//body
+	ctx.beginPath();
+	ctx.moveTo(x + PLAYER_WIDTH/2, GRID_SIZE_Y-y);
+	ctx.lineTo(x + PLAYER_WIDTH/2, GRID_SIZE_Y-y - 3*(PLAYER_WIDTH/5));
+	ctx.stroke();
+
 	ctx.save();
 }
 
@@ -61,7 +89,7 @@ function drawProjectiles(){
 }
 
 function drawHairs(){
-	const colour = 'brown';
+	const colour = '#662200';
 	const TIP_LENGTH = 19;
 
 	for (var i = hairs.length - 1; i >= 0; i--) {
