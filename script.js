@@ -1,6 +1,9 @@
 const GRID_SIZE_X = 500;
 const GRID_SIZE_Y = 500;
 
+//services
+const DRAWER = new Drawer();
+
 document.getElementById("tetGrid").width = GRID_SIZE_X;
 document.getElementById("tetGrid").height = GRID_SIZE_Y;
 
@@ -21,111 +24,6 @@ const hairs = new Array(10);
 
 const PLAYER_WIDTH = 20;
 
-function drawPlayer (x,y,colour){
-	var c=document.getElementById("tetGrid");
-	var ctx=c.getContext("2d");
-	const squareMode = true;
-
-	if(squareMode){
-		ctx.beginPath();
-
-		ctx.strokeStyle = 'red';
-		ctx.rect(x, (GRID_SIZE_Y-y - PLAYER_WIDTH), 20,20);
-
-		// console.log("y = " + ((22-y)*20) );
-		// console.log("x = " + ((x)*20) );		
-		
-		ctx.stroke();
-	}
-	
-	ctx.beginPath();
-
-	//head
-	if (null != colour){
-		ctx.fillStyle = colour;
-		ctx.strokeStyle = colour;
-	}
-	else {
-		ctx.fillStyle = '#ffd9b3';
-		ctx.strokeStyle = '#ffd9b3';
-	}
-	ctx.arc(
-		x + PLAYER_WIDTH/2,
-		GRID_SIZE_Y-y - 4*(PLAYER_WIDTH/5),
-		PLAYER_WIDTH/5,
-		0,
-		Math.PI * 2,
-		true
-	);
-	ctx.stroke();	
-	ctx.fill();
-
-	//body
-	ctx.beginPath();
-	ctx.moveTo(x + PLAYER_WIDTH/2, GRID_SIZE_Y-y);
-	ctx.lineTo(x + PLAYER_WIDTH/2, GRID_SIZE_Y-y - 3*(PLAYER_WIDTH/5));
-	ctx.stroke();
-
-	ctx.save();
-}
-
-function drawProjectiles(){
-	for (var i = projectiles.length - 1; i >= 0; i--) {
-		var proj = projectiles[i];
-
-		var c=document.getElementById("tetGrid");
-		var ctx=c.getContext("2d");
-
-		ctx.beginPath();
-		ctx.rect(proj.x, GRID_SIZE_Y- proj.y - 5, 5, 5);
-		ctx.fillStyle = 'pink';
-		//ctx.lineWidth="2";
-		
-		ctx.fill();
-		ctx.stroke(); 
-		ctx.save();
-
-	}
-}
-
-function drawHairs(){
-	const colour = '#662200';
-	const TIP_LENGTH = 19;
-
-	for (var i = hairs.length - 1; i >= 0; i--) {
-		var hair = hairs[i];
-		if(!hair) continue;
-
-		var c=document.getElementById("tetGrid");
-		var ctx=c.getContext("2d");
-
-		ctx.beginPath();
-		ctx.rect((GRID_SIZE_X/10) * i, 0, 5, hair.length - TIP_LENGTH);
-		ctx.fillStyle = colour;
-		ctx.strokeStyle = colour;
-		//ctx.lineWidth="2";
-		
-		ctx.fill();
-		ctx.stroke();
-
-		ctx.beginPath();
-	    ctx.moveTo((GRID_SIZE_X/10) * i, hair.length- TIP_LENGTH);
-	    ctx.lineTo((GRID_SIZE_X/10) * i + 5, hair.length - TIP_LENGTH);
-	    ctx.lineTo( (GRID_SIZE_X/10) * i + 2.5, hair.length);
-	    ctx.fill();
-
-		ctx.save();
-
-	}
-}
-
-function clearGrid (){
-	var c=document.getElementById("tetGrid");
-	var ctx=c.getContext("2d");
-	ctx.clearRect(0, 0, GRID_SIZE_X, GRID_SIZE_Y);
-	ctx.save();
-}
-
 function growHair(){
 	if(Math.random() > 0.95){
 		var position = Math.floor(10*Math.random());
@@ -134,16 +32,17 @@ function growHair(){
 			hairs[position] = new Hair();
 		}
 	}
+
 	for (var i = hairs.length - 1; i >= 0; i--) {
-		if(hairs[i])hairs[i].grow();
+		if(hairs[i]) hairs[i].grow();
 	}
 }
 
 function redrawGrid(){
-	clearGrid();
-	drawPlayer(player.x, player.y);
-	drawProjectiles();
-	drawHairs();
+	DRAWER.clearGrid();
+	DRAWER.drawPlayer(player.x, player.y);
+	DRAWER.drawProjectiles(projectiles);
+	DRAWER.drawHairs(hairs);
 }
 
 //falling function
@@ -247,98 +146,21 @@ function doKeyDown(e){
 }
 
 function movePlayerLeft(){
-	// var blocked = false;
-	// var blocksToMove = [];
-
-	// for(var x=0;x<10;x++){
-	// 	for (var y = 0; y < 22; y++) {
-	// 		if (fallingBlocks[x][y] != undefined){
-	// 			if (x==0){
-	// 				blocked = true;
-	// 				break;
-	// 			}
-	// 			else if (currentBlocks[x-1][y] != undefined){
-	// 				blocked = true;
-	// 				break;
-	// 			}
-	// 			else {
-	// 				blocksToMove.push([x,y]);
-	// 			}
-	// 		}
-	// 	};
-	// 	if (blocked){
-	// 		break;
-	// 	}
-	// }
-	// if (blocked){
-	// 	console.log('couldn\'t move left from ' + x + ', ' + y);
-	// 	return false;
-	// }
-
-	// else {
-	// 	//move blocks
-	// 	for (var i = 0; i < blocksToMove.length; i++) {
-	// 		var xMove = blocksToMove[i][0];
-	// 		var yMove = blocksToMove[i][1];
-
-	// 		fallingBlocks[xMove-1][yMove] = fallingBlocks[xMove][yMove];
-	// 		fallingBlocks[xMove][yMove] = undefined;
-	// 	};
-	// 	player.x--;
-	// };
-	//console.log("blocksToMove = " + blocksToMove);
 
 	if(player.x < 1){
 		return;
 	}
+	
 	player.x -= player.stepSize;
 	redrawGrid();
 }
 
 function movePlayerRight(){
-	var blocked = false;
-	var blocksToMove = [];
 
-	// for(var x=9;x>=0;x--){
-	// 	for (var y = 0; y < 22; y++) {
-	// 		if (fallingBlocks[x][y] != undefined){
-	// 			if (x==9){
-	// 				blocked = true;
-	// 				break;
-	// 			}
-	// 			else if (currentBlocks[x+1][y] != undefined){
-	// 				blocked = true;
-	// 				break;
-	// 			}
-	// 			else {
-	// 				//console.log("adding to blocksToMove :" + x + "," + y);
-	// 				blocksToMove.push([x,y]);
-	// 			}
-	// 		}
-	// 	};
-	// 	if (blocked){
-	// 		break;
-	// 	}
-	// }
-	// if (blocked){
-	// 	console.log('couldn\'t move left from ' + x + ', ' + y);
-	// 	return false;
-	// }
-
-	// else {
-	// 	//move blocks
-	// 	for (var i = 0; i < blocksToMove.length; i++) {
-	// 		var xMove = blocksToMove[i][0];
-	// 		var yMove = blocksToMove[i][1];
-
-	// 		fallingBlocks[xMove+1][yMove] = fallingBlocks[xMove][yMove];
-	// 		fallingBlocks[xMove][yMove] = undefined;
-	// 	};
-	// 	player.x++;
-	// };
 	if(player.x >= (GRID_SIZE_X) - PLAYER_WIDTH){
 		return;
 	}
+
 	player.x += player.stepSize
 	redrawGrid();
 }
