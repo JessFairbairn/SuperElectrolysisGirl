@@ -9,9 +9,11 @@ document.getElementById("tetGrid").height = GRID_SIZE_Y;
 
 var currentBlocks ;
 var fallingBlocks ;
-var timeDelay = 50;//100;//milliseconds
+var timeDelay = 50;
 var pauseBool = false;
 var gameOver = false;
+
+var score = 0;
 
 var player = {};
 player.x = 0;
@@ -22,12 +24,12 @@ const projectiles = [];
 
 const hairs = new Array(10);
 
-const PLAYER_WIDTH = 20;
+const PLAYER_WIDTH = 40;
 
 function growHair(){
 	if(Math.random() > 0.95){
 		var position = Math.floor(10*Math.random());
-		console.debug("New hair at position " + position);
+		
 		if(!hairs[position]){
 			hairs[position] = new Hair();
 		}
@@ -43,6 +45,7 @@ function redrawGrid(){
 	DRAWER.drawPlayer(player.x, player.y);
 	DRAWER.drawProjectiles(projectiles);
 	DRAWER.drawHairs(hairs);
+	document.getElementById("scoreSpan").innerText= score;
 }
 
 //falling function
@@ -68,6 +71,8 @@ function timeStep(){
 			&& GRID_SIZE_Y- hairs[hairIndex].length <= proj.y){
 			hairs[hairIndex] = null;
 			projectilesToRemove.push(i);
+			score += 5;
+			console.log("score is now " + score)
 		}
 	}
 	for (var i = projectilesToRemove.length - 1; i >= 0; i--) {
